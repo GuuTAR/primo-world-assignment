@@ -1,0 +1,15 @@
+node_modules
+dist
+coverage
+test
+.git
+.github
+.claude
+.vscode
+.idea
+.env
+.env.*
+!.env.template
+*.log
+Dockerfile
+.dockerignore
