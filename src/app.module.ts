@@ -4,6 +4,8 @@ import { createObserveModule } from '@nestjs/observe'
 
 import { FirebaseModule } from './firebase/firebase.module.js'
 
+import { AlgorithmModule } from './algorithm/algorithm.module.js'
+
 import { AuthModule } from './auth/auth.module.js'
 
 import { EncryptionModule } from './encryption/encryption.module.js'
@@ -33,6 +35,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule()
     AuthModule,
     TodosModule,
     EncryptionModule,
+    AlgorithmModule,
   ],
   controllers: [AppController],
   providers: [AppService],
