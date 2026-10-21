@@ -13,7 +13,7 @@ async function bootstrap() {
   app.enableCors({ origin: '*' })
 
   const config = new DocumentBuilder()
-    .setTitle('nestjs-firebase-auth-mongodb')
+    .setTitle('primo-world-assignment')
     .setVersion('1.0')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },

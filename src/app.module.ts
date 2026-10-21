@@ -6,6 +6,8 @@ import { FirebaseModule } from './firebase/firebase.module.js'
 
 import { AuthModule } from './auth/auth.module.js'
 
+import { EncryptionModule } from './encryption/encryption.module.js'
+
 import { TodosModule } from './todos/todos.module.js'
 
 import { AppController } from './app.controller.js'
@@ -30,6 +32,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule()
     FirebaseModule,
     AuthModule,
     TodosModule,
+    EncryptionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

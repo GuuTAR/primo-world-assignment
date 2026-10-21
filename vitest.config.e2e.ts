@@ -8,6 +8,6 @@ export default defineConfig({
     root: './',
     include: ['**/*.e2e-spec.ts'],
     globalSetup: ['./test/mongo.global-setup.ts'],
-    setupFiles: ['./test/mongo.setup.ts'],
+    setupFiles: ['./test/mongo.setup.ts', './test/rsa.setup.ts'],
   },
 });
