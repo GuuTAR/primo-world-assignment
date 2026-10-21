@@ -1,6 +1,6 @@
-# nestjs-firebase-auth-mongodb
+# primo-world-assignment
 
-NestJS Project template for reusable
+Project for Primo World Assignment
 
 ## Project setup
 
