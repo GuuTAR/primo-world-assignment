@@ -59,6 +59,52 @@ $ yarn start:dev
 $ yarn start:prod
 ```
 
+API docs (Swagger) are served at `http://localhost:8000/api-docs`.
+
+## Algorithm: `POST /merge`
+
+Implements `merge(int[] collection_1, int[] collection_2, int[] collection_3) : int[]`. It returns every element of the three collections in ascending order.
+
+- `collection_1` must be sorted from **max to min**.
+- `collection_2` and `collection_3` must be sorted from **min to max**.
+
+```bash
+$ curl -X POST http://localhost:8000/merge \
+    -H 'Content-Type: application/json' \
+    -d '{"collection_1":[10,7,4,1],"collection_2":[0,2,5,8],"collection_3":[0,3,6,9,12]}'
+```
+
+```json
+{
+  "code": 200,
+  "message": "Collections merged successfully",
+  "body": { "result": [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12] }
+}
+```
+
+**No sort function is used.** [`AlgorithmService.merge`](src/algorithm/algorithm.service.ts) is a three-pointer merge. `collection_1` is read from its last element (its smallest value) backwards, and the other two from their first element forwards. Each step takes the smallest of the three current values. This runs in O(n) time, and the inputs are not modified.
+
+Invalid requests return `400` with a `message`:
+
+- a collection is missing, is not an array, or contains a non-integer
+- a collection is not in the order described above, e.g. `collection_3 must be sorted in ascending order`
+
+The order is checked by comparing neighbouring elements, also without sorting.
+
+Unit tests:
+
+- [`algorithm.service.spec.ts`](src/algorithm/algorithm.service.spec.ts): empty and single-element inputs, duplicates, non-overlapping and interleaved collections, negative and very large integers, inputs not modified, a check that no sort function is called, randomized inputs, and 1,000,000 elements in linear time
+- [`merge.dto.spec.ts`](src/algorithm/dto/merge.dto.spec.ts): request validation
+- [`algorithm.controller.spec.ts`](src/algorithm/algorithm.controller.spec.ts): the controller
+
+The full HTTP flow is tested in [`test/algorithm.e2e-spec.ts`](test/algorithm.e2e-spec.ts).
+
+```bash
+# run only the algorithm tests
+$ yarn test src/algorithm
+$ yarn test:e2e test/algorithm
+```
+
 ## Run tests
 
 ```bash
