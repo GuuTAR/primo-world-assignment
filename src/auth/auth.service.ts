@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common'
 
-import { AuthSignInResponse } from '@/auth/auth.model.js'
+import { AuthSignInResponse } from './auth.model.js'
 
 const INVALID_CREDENTIALS = new Set([
   'INVALID_LOGIN_CREDENTIALS',

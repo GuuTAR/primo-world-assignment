@@ -2,14 +2,14 @@ import { Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
 import { createObserveModule } from '@nestjs/observe'
 
-import { FirebaseModule } from '@/firebase/firebase.module.js'
+import { FirebaseModule } from './firebase/firebase.module.js'
 
-import { AuthModule } from '@/auth/auth.module.js'
+import { AuthModule } from './auth/auth.module.js'
 
-import { TodosModule } from '@/todos/todos.module.js'
+import { TodosModule } from './todos/todos.module.js'
 
-import { AppController } from '@/app.controller.js'
-import { AppService } from '@/app.service.js'
+import { AppController } from './app.controller.js'
+import { AppService } from './app.service.js'
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule()
 

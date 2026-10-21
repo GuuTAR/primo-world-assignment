@@ -7,8 +7,8 @@ import { InjectModel } from '@nestjs/mongoose'
 
 import { isValidObjectId, Model } from 'mongoose'
 
-import { Todo } from '@/todos/todo.model.js'
-import { TodoEntity } from '@/todos/todo.schema.js'
+import { Todo } from './todo.model.js'
+import { TodoEntity } from './todo.schema.js'
 
 type TodoRecord = TodoEntity & { _id: unknown }
 

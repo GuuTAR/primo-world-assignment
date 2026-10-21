@@ -10,8 +10,8 @@ import type { Response as ExpressResponse } from 'express'
 import { STATUS_CODES } from 'node:http'
 import { Observable, map } from 'rxjs'
 
-import { RESPONSE_MESSAGE } from '@/common/response-message.decorator.js'
-import { Response } from '@/common/response.model.js'
+import { RESPONSE_MESSAGE } from './response-message.decorator.js'
+import { Response } from './response.model.js'
 
 /**
  * Wraps handler results in the `{ code, message, body }` envelope. `message` comes

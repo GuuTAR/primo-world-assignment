@@ -21,17 +21,17 @@ import {
   ApiErrorResponses,
   ApiOkResponseOf,
   ApiOkResponseWithoutBody,
-} from '@/common/api-response.decorator.js'
-import { HttpExceptionFilter } from '@/common/http-exception.filter.js'
-import { ResponseMessage } from '@/common/response-message.decorator.js'
-import { ResponseInterceptor } from '@/common/response.interceptor.js'
+} from '../common/api-response.decorator.js'
+import { HttpExceptionFilter } from '../common/http-exception.filter.js'
+import { ResponseMessage } from '../common/response-message.decorator.js'
+import { ResponseInterceptor } from '../common/response.interceptor.js'
 
-import { CurrentUser } from '@/auth/current-user.decorator.js'
-import { FirebaseAuthGuard } from '@/auth/firebase-auth.guard.js'
+import { CurrentUser } from '../auth/current-user.decorator.js'
+import { FirebaseAuthGuard } from '../auth/firebase-auth.guard.js'
 
-import { TodoCreateRequest } from '@/todos/dto/create-todo.dto.js'
-import { Todo } from '@/todos/todo.model.js'
-import { TodosService } from '@/todos/todos.service.js'
+import { TodoCreateRequest } from './dto/create-todo.dto.js'
+import { Todo } from './todo.model.js'
+import { TodosService } from './todos.service.js'
 
 const UNAUTHORIZED = { status: 401, description: 'Unauthorized' }
 const BAD_REQUEST = { status: 400, description: 'Bad Request' }
