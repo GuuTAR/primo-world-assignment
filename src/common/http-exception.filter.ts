@@ -9,7 +9,7 @@ import {
 
 import type { Response as ExpressResponse } from 'express'
 
-import { ResponseWithoutBody } from '@/common/response.model.js'
+import { ResponseWithoutBody } from './response.model.js'
 
 /** Renders every error as a `{ code, message }` body with the matching HTTP status. */
 @Catch()
