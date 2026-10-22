@@ -7,3 +7,9 @@ export const envFlag = (name: string): boolean =>
  * when `ENABLE_FIREBASE_AUTH` is on.
  */
 export const isFirebaseAuthEnabled = () => envFlag('ENABLE_FIREBASE_AUTH')
+
+/**
+ * The MongoDB connection and the modules that need it (todos) are set up only
+ * when `ENABLE_MONGODB` is on.
+ */
+export const isMongoDbEnabled = () => envFlag('ENABLE_MONGODB')
