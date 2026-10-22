@@ -9,8 +9,5 @@ export default defineConfig({
     include: ['**/*.e2e-spec.ts'],
     globalSetup: ['./test/mongo.global-setup.ts'],
     setupFiles: ['./test/mongo.setup.ts', './test/rsa.setup.ts'],
-    // Auth and todos tests need these modules; feature-flags.e2e-spec.ts
-    // covers the disabled cases.
-    env: { ENABLE_FIREBASE_AUTH: 'true', ENABLE_MONGODB: 'true' },
   },
 });
