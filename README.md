@@ -23,8 +23,9 @@ $ cp .env.template .env
 | `RSA_PUBLIC_KEY` | yes | PEM public key, used by `POST /get-decrypt-data` to decrypt `data1` |
 | `MONGODB_URI` | no | MongoDB connection string, default `mongodb://localhost:27017` |
 | `MONGODB_DB_NAME` | no | Database name, default `testdb` (overrides any database in `MONGODB_URI`) |
-| `FIREBASE_PROJECT_ID` | yes | Firebase project used to verify ID tokens |
-| `FIREBASE_API_KEY` | yes | Web API key, used by `POST /api/v1/auth/signin` |
+| `ENABLE_FIREBASE_AUTH` | no | `true` or `1` loads Firebase Auth and the modules that need it: auth (`/api/v1/auth/*`) and todos (`/api/v1/todos*`). Any other value, or unset, leaves them out. Default: off |
+| `FIREBASE_PROJECT_ID` | when auth is on | Firebase project used to verify ID tokens |
+| `FIREBASE_API_KEY` | when auth is on | Web API key, used by `POST /api/v1/auth/signin` |
 | `FIREBASE_CLIENT_EMAIL` / `FIREBASE_PRIVATE_KEY` | no | Service account; falls back to Application Default Credentials |
 | `FIREBASE_AUTH_EMULATOR_HOST` | no | e.g. `localhost:9099` to use the Auth emulator |
 | `OBSERVE_APP_KEY` / `OBSERVE_APP_SECRET` | no | [NestJS Observe](https://observe.nestjs.com) credentials |

@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
 import { createObserveModule } from '@nestjs/observe'
 
+import { isFirebaseAuthEnabled } from './common/env-flag.js'
+
 import { FirebaseModule } from './firebase/firebase.module.js'
 
 import { AlgorithmModule } from './algorithm/algorithm.module.js'
@@ -17,6 +19,11 @@ import { AppService } from './app.service.js'
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule()
 
+// Modules that need Firebase Auth; left out when ENABLE_FIREBASE_AUTH is off.
+const firebaseAuthModules = isFirebaseAuthEnabled()
+  ? [FirebaseModule, AuthModule, TodosModule]
+  : []
+
 @Module({
   imports: [
     // Distributed tracing, auto-correlated logs, request/job metrics, error
@@ -31,9 +38,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule()
       process.env.MONGODB_URI ?? 'mongodb://localhost:27017',
       { dbName: process.env.MONGODB_DB_NAME ?? 'testdb' },
     ),
-    FirebaseModule,
-    AuthModule,
-    TodosModule,
+    ...firebaseAuthModules,
     EncryptionModule,
     AlgorithmModule,
   ],

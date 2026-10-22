@@ -4,6 +4,8 @@ import './env.js'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
+import { isFirebaseAuthEnabled } from './common/env-flag.js'
+
 import { AppModule, ObserveInstrument } from './app.module.js'
 
 const SWAGGER_UI_CDN = 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.33.0'
@@ -17,15 +19,16 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('primo-world-assignment')
     .setVersion('1.0')
-    .addBearerAuth(
+  if (isFirebaseAuthEnabled()) {
+    config.addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'BearerAuth',
     )
-    .build()
+  }
   SwaggerModule.setup(
     'api-docs',
     app,
-    () => SwaggerModule.createDocument(app, config),
+    () => SwaggerModule.createDocument(app, config.build()),
     // Vercel does not bundle the swagger-ui-dist assets (they are read from
     // disk at runtime), so they 404 and the page renders blank. Load them from
     // a CDN there instead, pinned to the installed swagger-ui-dist version.
