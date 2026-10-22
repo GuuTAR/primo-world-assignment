@@ -24,6 +24,11 @@ async function bootstrap() {
     SwaggerModule.createDocument(app, config),
   )
 
-  await app.listen(process.env.PORT ?? 8000)
+  // Vercel imports this module, then waits only 1s for `listen()` to be called,
+  // and stubs `listen()` so it never resolves. So: finish the slow startup
+  // (e.g. the MongoDB connection) before the import completes, then call
+  // `listen()` without awaiting it.
+  await app.init()
+  void app.listen(process.env.PORT ?? 8000)
 }
 await bootstrap()
