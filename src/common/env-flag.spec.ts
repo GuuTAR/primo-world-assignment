@@ -1,4 +1,4 @@
-import { envFlag, isFirebaseAuthEnabled } from './env-flag.js'
+import { envFlag, isFirebaseAuthEnabled, isMongoDbEnabled } from './env-flag.js'
 
 describe('envFlag', () => {
   const original = { ...process.env }
@@ -38,5 +38,20 @@ describe('isFirebaseAuthEnabled', () => {
     expect(isFirebaseAuthEnabled()).toBe(true)
     process.env.ENABLE_FIREBASE_AUTH = 'false'
     expect(isFirebaseAuthEnabled()).toBe(false)
+  })
+})
+
+describe('isMongoDbEnabled', () => {
+  const original = { ...process.env }
+
+  afterEach(() => {
+    process.env = { ...original }
+  })
+
+  it('reads ENABLE_MONGODB', () => {
+    process.env.ENABLE_MONGODB = 'true'
+    expect(isMongoDbEnabled()).toBe(true)
+    process.env.ENABLE_MONGODB = 'false'
+    expect(isMongoDbEnabled()).toBe(false)
   })
 })

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
 import { createObserveModule } from '@nestjs/observe'
 
-import { isFirebaseAuthEnabled } from './common/env-flag.js'
+import { isFirebaseAuthEnabled, isMongoDbEnabled } from './common/env-flag.js'
 
 import { FirebaseModule } from './firebase/firebase.module.js'
 
@@ -19,10 +19,20 @@ import { AppService } from './app.service.js'
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule()
 
-// Modules that need Firebase Auth; left out when ENABLE_FIREBASE_AUTH is off.
-const firebaseAuthModules = isFirebaseAuthEnabled()
-  ? [FirebaseModule, AuthModule, TodosModule]
+const firebaseAuth = isFirebaseAuthEnabled()
+const mongoDb = isMongoDbEnabled()
+
+// Each feature is left out when its flag is off. Todos needs both.
+const firebaseAuthModules = firebaseAuth ? [FirebaseModule, AuthModule] : []
+const mongoDbModules = mongoDb
+  ? [
+      MongooseModule.forRoot(
+        process.env.MONGODB_URI ?? 'mongodb://localhost:27017',
+        { dbName: process.env.MONGODB_DB_NAME ?? 'testdb' },
+      ),
+    ]
   : []
+const todosModules = firebaseAuth && mongoDb ? [TodosModule] : []
 
 @Module({
   imports: [
@@ -34,11 +44,9 @@ const firebaseAuthModules = isFirebaseAuthEnabled()
       runtimeMetrics: !Boolean(process.versions?.['webcontainer']),
       serviceId: 'nest-typescript-starter',
     }),
-    MongooseModule.forRoot(
-      process.env.MONGODB_URI ?? 'mongodb://localhost:27017',
-      { dbName: process.env.MONGODB_DB_NAME ?? 'testdb' },
-    ),
+    ...mongoDbModules,
     ...firebaseAuthModules,
+    ...todosModules,
     EncryptionModule,
     AlgorithmModule,
   ],
