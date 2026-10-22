@@ -2,12 +2,6 @@
 
 Project for Primo World Assignment
 
-## Project setup
-
-```bash
-$ yarn
-```
-
 ## Environment
 
 Copy `.env.template` to `.env` and fill in the values. Real environment variables take precedence over `.env`.
@@ -16,39 +10,37 @@ Copy `.env.template` to `.env` and fill in the values. Real environment variable
 $ cp .env.template .env
 ```
 
+### RSA keys
+
+Generate a key pair at [cryptotools.net/rsagen](https://cryptotools.net/rsagen).
+
+### Required Environment for Assignment
+
 | Variable | Required | Description |
 | --- | --- | --- |
-| `PORT` | no | HTTP port, default `8000` |
-| `ENABLE_MONGODB` | no | `true` or `1` connects to MongoDB at startup and loads the modules that need it: todos (`/api/v1/todos*`). Any other value, or unset, skips the connection and leaves them out. Default: off |
-| `ENABLE_FIREBASE_AUTH` | no | `true` or `1` loads Firebase Auth and the modules that need it: auth (`/api/v1/auth/*`) and todos (`/api/v1/todos*`). Any other value, or unset, leaves them out. Default: off |
+| `PORT` | yes | HTTP port, default `8000` |
 | `RSA_PRIVATE_KEY` | yes | PEM private key, used by `POST /get-encrypt-data` to encrypt the AES key (`data1`) |
 | `RSA_PUBLIC_KEY` | yes | PEM public key, used by `POST /get-decrypt-data` to decrypt `data1` |
+
+### Optional Environment
+
+Todos needs both `ENABLE_FIREBASE_AUTH` and `ENABLE_MONGODB`.
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `ENABLE_MONGODB` | no | `true` or `1` connects to MongoDB at startup and loads the modules that need it: todos (`/api/v1/todos*`). Any other value, or unset, skips the connection and leaves them out. Default: off |
+| `ENABLE_FIREBASE_AUTH` | no | `true` or `1` loads Firebase Auth and the modules that need it: auth (`/api/v1/auth/*`) and todos (`/api/v1/todos*`). Any other value, or unset, leaves them out. Default: off |
 | `MONGODB_URI` | when MongoDB is on | MongoDB connection string, default `mongodb://localhost:27017` |
 | `MONGODB_DB_NAME` | no | Database name, default `testdb` (overrides any database in `MONGODB_URI`) |
 | `FIREBASE_PROJECT_ID` | when auth is on | Firebase project used to verify ID tokens |
 | `FIREBASE_API_KEY` | when auth is on | Web API key, used by `POST /api/v1/auth/signin` |
 | `FIREBASE_CLIENT_EMAIL` / `FIREBASE_PRIVATE_KEY` | no | Service account; falls back to Application Default Credentials |
-| `FIREBASE_AUTH_EMULATOR_HOST` | no | e.g. `localhost:9099` to use the Auth emulator |
-| `OBSERVE_APP_KEY` / `OBSERVE_APP_SECRET` | no | [NestJS Observe](https://observe.nestjs.com) credentials |
 
-Todos needs both `ENABLE_FIREBASE_AUTH` and `ENABLE_MONGODB`. `/merge`, `/get-encrypt-data` and `/get-decrypt-data` work with both flags off.
-
-### RSA keys
-
-Generate a key pair at [cryptotools.net/rsagen](https://cryptotools.net/rsagen), or with OpenSSL:
+## Project setup
 
 ```bash
-$ openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out private.pem
-$ openssl rsa -in private.pem -pubout -out public.pem
+$ yarn
 ```
-
-Store each key on one line in double quotes, with `\n` in place of line breaks (the same format as `FIREBASE_PRIVATE_KEY`):
-
-```bash
-$ awk 'NF {printf "%s\\n", $0}' private.pem   # paste the output as RSA_PRIVATE_KEY="..."
-```
-
-The app fails at startup if either key is missing or invalid. Tests generate their own key pair, so no keys are needed to run them.
 
 ## Compile and run the project
 
@@ -65,48 +57,70 @@ $ yarn start:prod
 
 API docs (Swagger) are served at `http://localhost:8000/api-docs`.
 
-## Algorithm: `POST /merge`
+## API Endpoints
 
-Implements `merge(int[] collection_1, int[] collection_2, int[] collection_3) : int[]`. It returns every element of the three collections in ascending order.
+| Method | Path | Module | Description |
+| --- | --- | --- | --- |
+| `POST` | `/get-encrypt-data` | encryption | Encrypts `payload` with a random AES key (`data2`) and encrypts that key with the RSA private key (`data1`) |
+| `POST` | `/get-decrypt-data` | encryption | Decrypts `data1` with the RSA public key to get the AES key, then decrypts `data2` back to `payload` |
+| `POST` | `/merge` | algorithm | Merges three sorted integer collections into one ascending array, without using a sort function |
 
-- `collection_1` must be sorted from **max to min**.
-- `collection_2` and `collection_3` must be sorted from **min to max**.
+### `POST /get-encrypt-data`
 
-```bash
-$ curl -X POST http://localhost:8000/merge \
-    -H 'Content-Type: application/json' \
-    -d '{"collection_1":[10,7,4,1],"collection_2":[0,2,5,8],"collection_3":[0,3,6,9,12]}'
-```
+| Field | Type | Rules |
+| --- | --- | --- |
+| `payload` | string | required, 0–2000 characters |
 
 ```json
-{
-  "code": 200,
-  "message": "Collections merged successfully",
-  "body": { "result": [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12] }
-}
+// request
+{ "payload": "Hello, world!" }
+
+// 200
+{ "successful": true, "error_code": "", "data": { "data1": "<base64>", "data2": "<base64>" } }
 ```
 
-**No sort function is used.** [`AlgorithmService.merge`](src/algorithm/algorithm.service.ts) is a three-pointer merge. `collection_1` is read from its last element (its smallest value) backwards, and the other two from their first element forwards. Each step takes the smallest of the three current values. This runs in O(n) time, and the inputs are not modified.
+### `POST /get-decrypt-data`
 
-Invalid requests return `400` with a `message`:
+| Field | Type | Rules |
+| --- | --- | --- |
+| `data1` | string | required, the `data1` from `/get-encrypt-data` |
+| `data2` | string | required, the `data2` from `/get-encrypt-data` |
 
-- a collection is missing, is not an array, or contains a non-integer
-- a collection is not in the order described above, e.g. `collection_3 must be sorted in ascending order`
+```json
+// request
+{ "data1": "<base64>", "data2": "<base64>" }
 
-The order is checked by comparing neighbouring elements, also without sorting.
+// 200
+{ "successful": true, "error_code": "", "data": { "payload": "Hello, world!" } }
+```
 
-Unit tests:
+Both encryption endpoints return errors as `{ "successful": false, "error_code": "...", "data": null }`:
 
-- [`algorithm.service.spec.ts`](src/algorithm/algorithm.service.spec.ts): empty and single-element inputs, duplicates, non-overlapping and interleaved collections, negative and very large integers, inputs not modified, a check that no sort function is called, randomized inputs, and 1,000,000 elements in linear time
-- [`merge.dto.spec.ts`](src/algorithm/dto/merge.dto.spec.ts): request validation
-- [`algorithm.controller.spec.ts`](src/algorithm/algorithm.controller.spec.ts): the controller
+| `error_code` | HTTP | When |
+| --- | --- | --- |
+| `INVALID_REQUEST` | 400 | The request body fails the rules above |
+| `DECRYPTION_FAILED` | 400 | `data1` or `data2` is wrong, tampered with, or from a different key pair |
+| `INTERNAL_ERROR` | 500 | Unexpected error |
 
-The full HTTP flow is tested in [`test/algorithm.e2e-spec.ts`](test/algorithm.e2e-spec.ts).
+### `POST /merge`
 
-```bash
-# run only the algorithm tests
-$ yarn test src/algorithm
-$ yarn test:e2e test/algorithm
+Implements `merge(int[] collection_1, int[] collection_2, int[] collection_3) : int[]`.
+
+| Field | Type | Rules |
+| --- | --- | --- |
+| `collection_1` | integer[] | required, sorted from max to min |
+| `collection_2` | integer[] | required, sorted from min to max |
+| `collection_3` | integer[] | required, sorted from min to max |
+
+```json
+// request
+{ "collection_1": [10, 7, 4, 1], "collection_2": [0, 2, 5, 8], "collection_3": [0, 3, 6, 9, 12] }
+
+// 200
+{ "code": 200, "message": "Collections merged successfully", "body": { "result": [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12] } }
+
+// 400 (e.g. a collection in the wrong order)
+{ "code": 400, "message": "collection_3 must be sorted in ascending order" }
 ```
 
 ## Run tests
